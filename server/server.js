@@ -1,22 +1,30 @@
 const express = require("express");
 const axios = require("axios");
-require("dotenv").config(); // .env 파일 사용
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
-app.use(express.json()); // JSON 요청 처리
+app.use(express.json());
+app.use(cors());
 
-const PORT = 5000; // 백엔드 서버 포트
+const PORT = 5000;
 
 app.post("/api/generate", async (req, res) => {
-  const { prompt } = req.body; // 프론트엔드에서 보낸 데이터
+  const { prompt, previousText = "" } = req.body;
+
+  if (!prompt) {
+    return res.status(400).json({ error: "프롬프트가 없습니다." });
+  }
 
   try {
     const response = await axios.post(
-      "https://api.openai.com/v1/completions",
+      "https://api.openai.com/v1/chat/completions",
       {
         model: "gpt-3.5-turbo",
-        prompt,
-        max_tokens: 500,
+        messages: [{ role: "user", content: previousText + prompt }],
+        max_tokens: 1000,
+        temperature: 0.7,
+        stop: ["지원동기 종료"],
       },
       {
         headers: {
@@ -25,10 +33,17 @@ app.post("/api/generate", async (req, res) => {
         },
       }
     );
-    res.json(response.data); // 결과를 프론트엔드로 전송
+
+    res.json({ result: response.data.choices[0].message.content });
   } catch (error) {
+    console.error("AI 요청 실패:", error.message);
     res.status(500).json({ error: "AI 요청 실패", details: error.message });
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+
+process.on("SIGINT", () => {
+  console.log("❌ 서버 종료 중...");
+  process.exit();
+});
