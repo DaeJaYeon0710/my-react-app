@@ -1,116 +1,135 @@
-import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
-function ResumeProcessing() {
+const ResumeProcessing = () => {
   const location = useLocation();
-  const { companyName, workType, experience, customExperience, certificates } = location.state || {};
+  const data = location.state || {};
 
-  const [aiGeneratedResume, setAiGeneratedResume] = useState(""); // AI가 생성한 지원동기
+  const [aiResponse, setAiResponse] = useState("");
   const [loading, setLoading] = useState(false);
-  const [requestCompleted, setRequestCompleted] = useState(false); // 요청 완료 여부
+  const textareaRef = useRef(null);
 
-  // 날짜 형식 변환 함수
+  useEffect(() => {
+    if (!data.companyName || !data.workType) {
+      console.error("❌ 데이터가 올바르게 전달되지 않았습니다.");
+    } else {
+      console.log("📌 페이지2에서 수신한 데이터:", data);
+    }
+  }, [data]);
+
+  // 날짜 포맷 함수 (YYYY년 MM월 DD일)
   const formatDate = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return "날짜 없음";
     const date = new Date(dateString);
     return `${date.getFullYear()}년 ${String(date.getMonth() + 1).padStart(2, "0")}월 ${String(date.getDate()).padStart(2, "0")}일`;
   };
 
-  // AI 요청 함수
+  // AI 요청 함수 (자동 추가 없음)
   const requestAI = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post("https://api.openai.com/v1/completions", {
-        model: "gpt-4",
-        prompt: `
-          아래 정보를 바탕으로 지원동기를 작성해 주세요.
-          - 지원 회사: ${companyName}
-          - 업무 형태: ${workType}
-          - 유사 업무 경력: ${
-            experience === "none"
-              ? "무경력"
-              : customExperience.map(exp => `
-                회사명: ${exp.company}
-                입사 날짜: ${formatDate(exp.joinDate)}
-                퇴사 날짜: ${formatDate(exp.leaveDate)}
-                업무 내용: ${exp.details}
-              `).join("\n")
-          }
-          - 보유 자격증: ${certificates.length > 0 ? certificates.map(cert => cert.name).join(", ") : "없음"}
+    if (!data.companyName || !data.workType) {
+      alert("🚨 데이터가 올바르게 전달되지 않았습니다. 다시 시도해주세요.");
+      return;
+    }
 
-          줄을 나누어 보기 쉽게 작성해 주세요.
-        `,
-        max_tokens: 400,
-        temperature: 0.7,
-        headers: {
-          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
-        },
+    setLoading(true);
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/generate", {
+        prompt: `
+  다음 정보를 바탕으로 **최소 400자 이상 지원동기를 작성해주세요.  
+  문장을 자연스럽게 이어가며, 지원 회사와 업무에 적합한 경험을 강조해주세요.  
+  보기 편하게 줄을 나누고, 핵심 포인트를 명확히 해주세요.  
+  문장이 끊기지 않고 마무리되도록 작성해주세요.  
+
+  📌 **지원 회사:** ${data.companyName}
+  📌 **입사하면 맡게 될 업무:** ${data.workType}
+  📌 **유사 업무 경력:** 
+  ${data.experience === "none" ? "무경력" : data.customExperience.map((exp, index) =>
+      `   ${index + 1}. ${exp.company} (${formatDate(exp.joinDate)} ~ ${formatDate(exp.leaveDate)})\n   - ${exp.details}`).join("\n\n")}
+
+  📌 **보유 자격증:** ${data.certificates.length > 0 ? data.certificates.map(cert => cert.name).join(", ") : "없음"}
+
+  ✨ **위 내용을 기반으로 지원동기를 작성해주세요.**  
+  - 문장을 자연스럽게 이어갈 것  
+  - 중요한 부분을 강조할 것  
+  - 가독성을 높이도록 단락을 나눌 것  
+  - **최소 400자 이상으로 작성할 것  
+  - 문장이 끊기지 않고 완벽히 마무리될 것  
+  `,
       });
 
-      setAiGeneratedResume(response.data.choices[0].text.trim());
-      setRequestCompleted(true); // 요청 완료 상태 변경
+      if (!response.data || !response.data.result) {
+        throw new Error("AI 응답 데이터가 없습니다.");
+      }
+
+      setAiResponse(response.data.result);
     } catch (error) {
-      console.error("AI 요청 실패:", error);
-      setAiGeneratedResume("지원동기 작성에 실패했습니다. 다시 시도해 주세요.");
+      console.error("❌ AI 요청 실패:", error.message);
+      setAiResponse("AI 요청 실패: " + error.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  // ✅ AI 응답이 바뀔 때 textarea 크기 자동 조정
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
+    }
+  }, [aiResponse]);
+
   return (
-    <div className="pt-20 p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">지원 정보 정리</h2>
+    <div className="container mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-4">이력서 정보 정리</h2>
 
       {/* 정리된 정보 표시 */}
-      <div className="border p-4 rounded-md mb-4 bg-gray-100">
-        <p><strong>지원 회사:</strong> {companyName || "입력되지 않음"}</p>
-        <p><strong>업무 형태:</strong> {workType || "입력되지 않음"}</p>
-        <p><strong>유사 업무 경력:</strong> {experience === "none" ? "무경력" : ""}</p>
-        {experience === "custom" &&
-          customExperience.map((exp, index) => (
-            <div key={exp.id} className="mt-2">
-              <p><strong>{index + 1}. 회사명:</strong> {exp.company}</p>
-              <p><strong>입사 날짜:</strong> {formatDate(exp.joinDate)}</p>
-              <p><strong>퇴사 날짜:</strong> {formatDate(exp.leaveDate)}</p>
-              <p><strong>업무 내용:</strong> {exp.details}</p>
-            </div>
-          ))}
-        <p><strong>보유 자격증:</strong> {certificates.length > 0 ? certificates.map(cert => cert.name).join(", ") : "없음"}</p>
-      </div>
-
-      {/* 지원동기 요청 버튼 (AI 요청 전까지 활성화) */}
-      {!requestCompleted && (
-        <button
-          className={`bg-blue-500 text-white p-2 rounded-md w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={requestAI}
-          disabled={loading}
-        >
-          {loading ? "지원동기 작성 중..." : "지원동기 작성 요청"}
-        </button>
+      {data.companyName && data.workType ? (
+        <div className="border p-4 rounded bg-gray-100">
+          <p><strong>📌 지원 회사:</strong> {data.companyName}</p>
+          <p><strong>💼 업무 형태:</strong> {data.workType}</p>
+          <p><strong>📝 유사 업무 경력:</strong></p>
+          {data.experience === "none" ? (
+            <p>무경력</p>
+          ) : (
+            data.customExperience.map((exp, index) => (
+              <div key={exp.id} className="ml-4 mt-2">
+                <p><strong>{index + 1}. {exp.company}</strong> ({formatDate(exp.joinDate)} ~ {formatDate(exp.leaveDate)})</p>
+                <p>➡ {exp.details}</p>
+              </div>
+            ))
+          )}
+          <p><strong>🎓 보유 자격증:</strong> {data.certificates.length > 0 ? data.certificates.map(cert => cert.name).join(", ") : "없음"}</p>
+        </div>
+      ) : (
+        <p className="text-red-500 font-bold">🚨 데이터 없음</p>
       )}
 
-      {/* AI가 작성한 지원동기 */}
-      {requestCompleted && (
-        <div className="mt-4">
-          <h3 className="text-xl font-semibold">작성된 지원동기</h3>
-          <textarea
-            className="border p-2 w-full rounded-md mt-2"
-            value={aiGeneratedResume}
-            readOnly
-            rows={aiGeneratedResume.split("\n").length + 3} // 줄 개수에 따라 크기 조정
-          ></textarea>
+      {/* AI 요청 버튼 (기존 버튼 유지) */}
+      <button
+        onClick={requestAI}
+        className={`mt-4 px-4 py-2 rounded text-white ${loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-700"}`}
+        disabled={loading}
+      >
+        {loading ? "지원동기 작성 중..." : "지원동기 작성 요청"}
+      </button>
 
-          {/* 재요청 버튼 */}
-          <button
-            className="bg-green-500 text-white p-2 rounded-md w-full mt-2"
-            onClick={requestAI}
-          >
-            지원동기 재작성 요청
-          </button>
+      {/* AI 응답 표시 */}
+      {aiResponse && (
+        <div className="mt-4 p-4 border rounded bg-white">
+          <h3 className="text-xl font-bold mb-2">지원동기</h3>
+          <textarea
+            ref={textareaRef}
+            className="border p-2 w-full rounded-md resize-none"
+            value={aiResponse}
+            readOnly
+            style={{ minHeight: "150px", height: "auto", overflow: "hidden" }}
+          />
         </div>
       )}
     </div>
   );
-}
+};
 
 export default ResumeProcessing;
