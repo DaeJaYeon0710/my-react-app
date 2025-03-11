@@ -3,7 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ✅ 페이지 전체 배경 색상 설정 */
 body {
+  @apply bg-blue-200; /* ✅ Tailwind 사용 */
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
