@@ -71,20 +71,20 @@ function Motivation() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-200 flex flex-col items-center pt-24">
+    <div className="min-h-[80vh] bg-blue-200 flex flex-col items-center -mt-5">
       {/* ✅ 전체 컨텐츠 박스 */}
-      <div className="w-full max-w-7xl mx-auto p-10 bg-white rounded-lg shadow-lg flex flex-col">
+      <div className="w-full max-w-7xl mx-auto p-10 bg-white rounded-lg shadow-lg flex flex-col animate-fadeIn">
         
         {/* 🔹 입력 필드들을 2열 레이아웃에서 독립적으로 조정 */}
         <div className="flex gap-x-16">
           {/* 왼쪽 섹션 */}
-          <div className="flex flex-col gap-14 w-1/2">
+          <div className="flex flex-col gap-5 w-1/2">
             {/* 지원 회사 */}
             <div className="p-5 bg-white rounded-md shadow-md">
-              <label className="block font-semibold">지원 회사</label>
+              <label className="block text-[22px] font-medium">지원 회사</label>
               <input
                 type="text"
-                className="border p-3 w-full rounded-md"
+                className="border p-3 w-full rounded-md text-lg"
                 placeholder="지원할 회사명을 입력하세요"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
@@ -93,9 +93,9 @@ function Motivation() {
 
             {/* 유사 업무 경력 */}
             <div className="p-5 bg-white rounded-md shadow-md flex flex-col">
-              <label className="block font-semibold">유사 업무 경력</label>
+              <label className="block text-[22px] font-medium">유사 업무 경력</label>
               <select
-                className="border p-3 w-full rounded-md"
+                className="border p-3 w-full rounded-md text-lg"
                 value={experience}
                 onChange={(e) => {
                   setExperience(e.target.value);
@@ -113,7 +113,7 @@ function Motivation() {
                   {customExperience.map((exp, index) => (
                     <div key={exp.id} className="border p-4 rounded-md mt-2 bg-gray-50">
                       <span className="font-semibold">{index + 1}.</span>
-                      <input type="text" className="border p-3 w-full rounded-md mt-2" placeholder="회사 이름" value={exp.company}
+                      <input type="text" className="border p-3 w-full rounded-md mt-2" placeholder="예: 회사 이름, 프리랜서 활동, 개인 과외" value={exp.company}
                         onChange={(e) => setCustomExperience(customExperience.map(item => item.id === exp.id ? { ...item, company: e.target.value } : item))} />
                       <div className="flex space-x-2 mt-2">
                         <DatePicker selected={exp.joinDate} onChange={(date) =>
@@ -135,13 +135,13 @@ function Motivation() {
           </div>
 
           {/* 오른쪽 섹션 */}
-          <div className="flex flex-col gap-14 w-1/2">
+          <div className="flex flex-col gap-5 w-1/2">
             {/* 업무 형태 */}
             <div className="p-5 bg-white rounded-md shadow-md">
-              <label className="block font-semibold">입사하면 맡게 될 업무 형태</label>
+              <label className="block text-[22px] font-medium">입사하면 맡게 될 업무 형태</label>
               <input
                 type="text"
-                className="border p-3 w-full rounded-md"
+                className="border p-3 w-full rounded-md text-lg"
                 placeholder="예: 마케팅, 개발자, 영업"
                 value={workType}
                 onChange={(e) => setWorkType(e.target.value)}
@@ -150,8 +150,8 @@ function Motivation() {
 
             {/* 보유 자격증 */}
             <div className="p-5 bg-white rounded-md shadow-md flex flex-col">
-              <label className="block font-semibold">보유 자격증</label>
-              <select className="border p-3 w-full rounded-md" value={certificateOption} onChange={handleCertificateChange}>
+              <label className="block text-[22px] font-medium">보유 자격증</label>
+              <select className="border p-3 w-full rounded-md text-lg" value={certificateOption} onChange={handleCertificateChange}>
                 <option value="none">없음</option>
                 <option value="custom">작성</option>
               </select>
@@ -174,11 +174,16 @@ function Motivation() {
 
         {/* ✅ 완료 버튼 추가 (하단에 위치) */}
         <div className="flex justify-end mt-12">
-          <button onClick={handleComplete} className="bg-black text-white px-6 py-3 rounded-full shadow-lg text-lg flex items-center space-x-2">
-            <span>완료</span>
-            <span className="text-xl">→</span>
-          </button>
-        </div>
+  <button
+    onClick={handleComplete}
+    className="bg-teal-500 text-white px-6 py-3 rounded-full shadow-lg text-2xl flex items-center space-x-2 
+               transition-all duration-300 hover:bg-white hover:text-teal-500 border-2 border-teal-500"
+  >
+    <span>지원동기 작성하러 가기</span>
+    <span className="text-3xl">→</span>
+  </button>
+</div>
+
 
       </div>
     </div>

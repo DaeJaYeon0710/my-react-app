@@ -3,18 +3,32 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ 페이지 전체 배경 색상 설정 */
-body {
-  @apply bg-blue-200; /* ✅ Tailwind 사용 */
+/* ✅ 웹폰트 적용 */
+@font-face {
+  font-family: 'GongGothicMedium';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10@1.0/GongGothicMedium.woff') format('woff');
+  font-weight: 400; /* ✅ 기본 굵기 조정 */
+  font-style: normal;
+}
+
+/* ✅ 전체 기본 폰트 적용 (기본 굵기: 400) */
+html, body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+  height: auto; /* 페이지 내용의 높이에 따라 동적으로 결정되도록 설정 */
+  overflow: auto; /* 내용이 많아질 때만 스크롤 활성화 */
+  scroll-behavior: smooth; /* 스크롤 동작을 부드럽게 */
+}
+
+body {
+  @apply bg-blue-200;
+  font-family: 'GongGothicMedium', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* ✅ 특정 요소에 기본 굵기 강제 적용 */
+h1, h2, h3 {
+  font-weight: 500 !important; /* ✅ 기본보다 너무 두껍지 않게 */
 }

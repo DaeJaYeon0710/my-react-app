@@ -1,23 +1,63 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Navbar() {
+  const location = useLocation(); // 현재 URL 경로 확인
+
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white shadow-md p-4 flex items-center justify-between z-50">
-      {/* ✅ 왼쪽: 로고 */}
-      <h1 className="text-2xl font-bold text-gray-700 ml-6">이력서AI</h1>
+    <nav className="relative bg-white shadow-md">
+      {/* 상단바 전체를 중앙에 정렬 */}
+      <div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
+        {/* ✅ 왼쪽: 로고 (버튼화 및 클릭 시 홈 이동) */}
+        <Link
+          to="/"
+          className="text-4xl font-medium cursor-pointer absolute left-0 pl-4"
+        >
+          <span className="text-gray-800">이력서</span> <span className="text-teal-500">AI</span>
+        </Link>
 
-      {/* ✅ 가운데: 네비게이션 메뉴 */}
-      <div className="flex-grow flex justify-center space-x-6">
-        <Link to="/" className="text-blue-500 font-semibold hover:underline">
-          지원동기 작성
-        </Link>
-        <Link to="/interview-help" className="text-blue-500 font-semibold hover:underline">
-          면접 도움
-        </Link>
+        {/* ✅ 네비게이션 메뉴 */}
+        <div className="flex justify-center flex-grow">
+          <div className="flex space-x-6">
+            {/* 홈 버튼 */}
+            <Link
+              to="/"
+              className={`text-xl px-4 py-2 transition duration-300 ${
+                location.pathname === "/"
+                  ? "text-black border-b-4 border-gray-700 pb-1 cursor-default"
+                  : "text-black hover:bg-black hover:text-teal-500 rounded-md"
+              }`}
+            >
+              홈
+            </Link>
+
+            {/* 지원동기 작성 버튼 */}
+            <Link
+              to="/motivation"
+              className={`text-xl px-4 py-2 transition duration-300 ${
+                location.pathname === "/motivation" ||
+                location.pathname === "/resume-processing" ||
+                location.pathname === "/career-goals"
+                  ? "text-black border-b-4 border-gray-700 pb-1 cursor-default"
+                  : "text-black hover:bg-black hover:text-teal-500 rounded-md"
+              }`}
+            >
+              이력서 작성
+            </Link>
+
+            {/* 면접 도움 버튼 */}
+            <Link
+              to="/interview-help"
+              className={`text-xl px-4 py-2 transition duration-300 ${
+                location.pathname === "/interview-help"
+                  ? "text-black border-b-4 border-gray-700 pb-1 cursor-default"
+                  : "text-black hover:bg-black hover:text-teal-500 rounded-md"
+              }`}
+            >
+              면접 도움
+            </Link>
+          </div>
+        </div>
       </div>
-
-      {/* ✅ 오른쪽: 빈 공간 (디자인 정렬 맞추기) */}
-      <div className="mr-6"></div>
     </nav>
   );
 }
