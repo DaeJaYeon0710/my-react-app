@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,20 +9,32 @@ function Motivation() {
   // 입력 상태 관리
   const [companyName, setCompanyName] = useState(""); // 지원 회사
   const [workType, setWorkType] = useState(""); // 업무 형태
-  const [experience, setExperience] = useState("none"); // 유사 업무 경력 선택
+  const [experience, setExperience] = useState("none"); // 업무 경력 선택
   const [customExperience, setCustomExperience] = useState([]); // 직접 작성한 경력 리스트
   const [certificateOption, setCertificateOption] = useState("none"); // 보유 자격증 선택
   const [certificates, setCertificates] = useState([]); // 직접 작성한 자격증 리스트
 
-  // ✅ 유사 업무 경력 추가
+  const lastExperienceRef = useRef(null); // 추가된 입력 칸을 참조할 ref
+
+  // ✅ 업무 경력 추가
   const addExperience = () => {
-    setCustomExperience([
-      ...customExperience,
-      { id: Date.now(), company: "", joinDate: null, leaveDate: null, details: "" }
-    ]);
+    const newExperience = { id: Date.now(), company: "", joinDate: null, leaveDate: null, details: "" };
+  
+    setCustomExperience(prevExperience => {
+      const updatedExperience = [...prevExperience, newExperience];
+  
+      // 🔥 추가된 입력 칸으로 자동 스크롤
+      setTimeout(() => {
+        if (lastExperienceRef.current) {
+          lastExperienceRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+  
+      return updatedExperience;
+    });
   };
 
-  // ✅ 유사 업무 경력 삭제
+  // ✅ 업무 경력 삭제
   const removeExperience = (id) => {
     const updatedExperience = customExperience.filter(exp => exp.id !== id);
     setCustomExperience(updatedExperience);
@@ -61,7 +73,7 @@ function Motivation() {
       return;
     }
     if (!workType.trim()) {
-      alert("⚠️ 입사하면 맡게 될 업무 형태를 입력해주세요.");
+      alert("⚠️ 회사에서 요구하는 담당 업무를 입력해주세요.");
       return;
     }
 
@@ -91,9 +103,9 @@ function Motivation() {
               />
             </div>
 
-            {/* 유사 업무 경력 */}
+            {/*업무 경력 */}
             <div className="p-5 bg-white rounded-md shadow-md flex flex-col">
-              <label className="block text-[22px] font-medium">유사 업무 경력</label>
+              <label className="block text-[22px] font-medium">업무 경력</label>
               <select
                 className="border p-3 w-full rounded-md text-lg"
                 value={experience}
@@ -111,17 +123,35 @@ function Motivation() {
               {experience === "custom" && (
                 <div className="mt-2">
                   {customExperience.map((exp, index) => (
-                    <div key={exp.id} className="border p-4 rounded-md mt-2 bg-gray-50">
+                    <div key={exp.id} ref={index === customExperience.length - 1 ? lastExperienceRef : null} className="border p-4 rounded-md mt-2 bg-gray-50">
                       <span className="font-semibold">{index + 1}.</span>
                       <input type="text" className="border p-3 w-full rounded-md mt-2" placeholder="예: 회사 이름, 프리랜서 활동, 개인 과외" value={exp.company}
                         onChange={(e) => setCustomExperience(customExperience.map(item => item.id === exp.id ? { ...item, company: e.target.value } : item))} />
                       <div className="flex space-x-2 mt-2">
-                        <DatePicker selected={exp.joinDate} onChange={(date) =>
-                          setCustomExperience(customExperience.map(item => item.id === exp.id ? { ...item, joinDate: date } : item))
-                        } className="border p-3 rounded-md w-full" placeholderText="입사 날짜" />
-                        <DatePicker selected={exp.leaveDate} onChange={(date) =>
-                          setCustomExperience(customExperience.map(item => item.id === exp.id ? { ...item, leaveDate: date } : item))
-                        } className="border p-3 rounded-md w-full" placeholderText="퇴사 날짜" />
+                      <DatePicker 
+  selected={exp.joinDate} 
+  onChange={(date) =>
+    setCustomExperience(customExperience.map(item => 
+      item.id === exp.id ? { ...item, joinDate: date, leaveDate: date > (exp.leaveDate || date) ? null : exp.leaveDate } : item
+    ))
+  } 
+  className="border p-3 rounded-md w-full" 
+  placeholderText="입사 날짜" 
+  maxDate={new Date().setDate(new Date().getDate() - 1)} // 🔥 오늘 이전까지만 선택 가능
+/>
+
+<DatePicker 
+  selected={exp.leaveDate} 
+  onChange={(date) =>
+    setCustomExperience(customExperience.map(item => 
+      item.id === exp.id ? { ...item, leaveDate: date } : item
+    ))
+  } 
+  className="border p-3 rounded-md w-full" 
+  placeholderText="퇴사 날짜"
+  minDate={exp.joinDate} // 🔥 입사 날짜 이후만 선택 가능
+  disabled={!exp.joinDate} // 🔥 입사 날짜를 먼저 선택하도록 제한
+/>
                       </div>
                       <textarea className="border p-3 w-full rounded-md mt-2" placeholder="업무 내용 작성" value={exp.details}
                         onChange={(e) => setCustomExperience(customExperience.map(item => item.id === exp.id ? { ...item, details: e.target.value } : item))} />
@@ -138,11 +168,11 @@ function Motivation() {
           <div className="flex flex-col gap-5 w-1/2">
             {/* 업무 형태 */}
             <div className="p-5 bg-white rounded-md shadow-md">
-              <label className="block text-[22px] font-medium">입사하면 맡게 될 업무 형태</label>
+              <label className="block text-[22px] font-medium">회사에서 요구하는 담당 업무, 요구 자격 요건</label>
               <input
                 type="text"
-                className="border p-3 w-full rounded-md text-lg"
-                placeholder="예: 마케팅, 개발자, 영업"
+                className="border p-3 w-full rounded-md text-base"
+                placeholder="예: 영어선생(자격요건:TOEIC900점이상)"
                 value={workType}
                 onChange={(e) => setWorkType(e.target.value)}
               />

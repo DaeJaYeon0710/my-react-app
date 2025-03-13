@@ -30,7 +30,7 @@ function Navbar() {
               홈
             </Link>
 
-            {/* 지원동기 작성 버튼 */}
+            {/* 이력서 작성 버튼 */}
             <Link
               to="/motivation"
               className={`text-xl px-4 py-2 transition duration-300 ${
@@ -46,15 +46,16 @@ function Navbar() {
 
             {/* 면접 도움 버튼 */}
             <Link
-              to="/interview-help"
-              className={`text-xl px-4 py-2 transition duration-300 ${
-                location.pathname === "/interview-help"
-                  ? "text-black border-b-4 border-gray-700 pb-1 cursor-default"
-                  : "text-black hover:bg-black hover:text-teal-500 rounded-md"
-              }`}
-            >
-              면접 도움
-            </Link>
+  to="/interviewhelp"
+  className={`text-xl px-4 py-2 transition duration-300 ${
+    location.pathname === "/interview-help" || 
+    location.pathname === "/interview-help-next" // ✅ InterviewHelpNext 페이지에서도 활성화
+      ? "text-black border-b-4 border-gray-700 pb-1 cursor-default"
+      : "text-black hover:bg-black hover:text-teal-500 rounded-md"
+  }`}
+>
+  면접 도움
+</Link>
           </div>
         </div>
       </div>

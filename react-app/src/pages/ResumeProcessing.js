@@ -41,7 +41,7 @@ const ResumeProcessing = () => {
         prompt: `
 📌 **지원 회사:** ${data.companyName}
 📌 **입사하면 맡게 될 업무:** ${data.workType}
-📌 **유사 업무 경력:** 
+📌 **업무 경력:** 
 ${data.experience === "none" ? "무경력" : data.customExperience.map((exp, index) =>
             `   ${index + 1}. ${exp.company} (${formatDate(exp.joinDate)} ~ ${formatDate(exp.leaveDate)})\n   - ${exp.details}`).join("\n\n")}
 
@@ -116,40 +116,49 @@ ${data.experience === "none" ? "무경력" : data.customExperience.map((exp, ind
               <p className="border p-3 w-full rounded-md bg-gray-100">{data.companyName}</p>
             </div>
 
-            {/* 유사 업무 경력 */}
+            {/* 업무 경력 */}
             <div className="p-5 bg-white rounded-md shadow-md flex flex-col">
-              <label className="block text-[20px] font-medium">유사 업무 경력</label>
-              {data.experience === "none" ? (
-                <p className="border p-3 w-full rounded-md bg-gray-100">무경력</p>
-              ) : (
-                <div className="border p-4 rounded-md mt-2 bg-gray-50">
-                  <p className="font-normal">
-                    {data.customExperience.length > 0 ? data.customExperience[0]?.company : "정보 없음"}
-                  </p>
-                  <p className="text-gray-700">
-                    {data.customExperience.length > 0 ? 
-                      `${formatDate(data.customExperience[0]?.joinDate)} ~ ${formatDate(data.customExperience[0]?.leaveDate)}` 
-                      : "날짜 없음"}
-                  </p>
-                  <p className="mt-0">
-                    {data.customExperience.length > 0 ? data.customExperience[0]?.details : "상세 정보 없음"}
-                  </p>
+  <label className="block text-[20px] font-medium">업무 경력</label>
 
-                  {data.customExperience.length > 1 && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      외 {data.customExperience.length - 1}건의 경력 추가됨
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
+  {/* ✅ customExperience가 없거나 비어있으면 "무경력" 출력 */}
+  {(data.experience === "none" || !data.customExperience || data.customExperience.length === 0) ? (
+    <p className="border p-3 w-full rounded-md bg-gray-100">무경력</p>
+  ) : (
+    // ✅ 경력이 있을 경우에만 상세 정보 출력
+    <div className="border p-4 rounded-md mt-2 bg-gray-50">
+      {/* 회사명이 존재하는 경우만 출력 */}
+      {data.customExperience[0]?.company && (
+        <p className="font-normal">{data.customExperience[0].company}</p>
+      )}
+
+      {/* 입사/퇴사 날짜가 둘 다 존재하는 경우만 출력 */}
+      {data.customExperience[0]?.joinDate && data.customExperience[0]?.leaveDate && (
+        <p className="text-gray-700">
+          {`${formatDate(data.customExperience[0].joinDate)} ~ ${formatDate(data.customExperience[0].leaveDate)}`}
+        </p>
+      )}
+
+      {/* 업무 내용이 존재하는 경우만 출력 */}
+      {data.customExperience[0]?.details && (
+        <p className="mt-0">{data.customExperience[0].details}</p>
+      )}
+
+      {/* 추가 경력이 있는 경우만 개수 표시 */}
+      {data.customExperience.length > 1 && (
+        <p className="mt-2 text-sm text-gray-600">
+          외 {data.customExperience.length - 1}건의 경력 추가됨
+        </p>
+      )}
+    </div>
+  )}
+</div>
           </div>
 
           {/* 오른쪽 섹션 */}
           <div className="flex flex-col gap-5 w-1/2">
             {/* 업무 형태 */}
             <div className="p-5 bg-white rounded-md shadow-md">
-              <label className="block text-[20px] font-medium">입사하면 맡게 될 업무 형태</label>
+              <label className="block text-[20px] font-medium">회사에서 요구하는 담당 업무, 요구 자격 요건</label>
               <p className="border p-3 w-full rounded-md bg-gray-100">{data.workType}</p>
             </div>
 

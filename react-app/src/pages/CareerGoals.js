@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // 🔹 Link 대신 useNavigate 사용
 
 const CareerGoals = () => {
   const location = useLocation();
@@ -12,6 +12,14 @@ const CareerGoals = () => {
   const [fadeOut, setFadeOut] = useState(false); // 페이드아웃 상태
   const textareaRef = useRef(null);
   const responseRef = useRef(null);
+
+  const navigate = useNavigate(); // 🔹 useNavigate 인스턴스 생성
+
+const goToInterviewHelpNext = () => {
+  navigate("/interview-help-next", {
+    state: { ...data, careerResponse }, // ✅ 모든 데이터와 careerResponse 함께 전달
+  });
+};
 
   useEffect(() => {
     if (!data.companyName || !data.workType) {
@@ -40,7 +48,7 @@ const CareerGoals = () => {
         prompt: `
 📌 **지원 회사:** ${data.companyName}
 📌 **입사하면 맡게 될 업무:** ${data.workType}
-📌 **유사 업무 경력:** 
+📌 **업무 경력:** 
 ${data.experience === "none" ? "무경력" : data.customExperience.map((exp, index) =>
             `   ${index + 1}. ${exp.company} (${formatDate(exp.joinDate)} ~ ${formatDate(exp.leaveDate)})\n   - ${exp.details}`).join("\n\n")}
 
@@ -111,9 +119,9 @@ ${data.aiResponse || "지원동기가 작성되지 않았습니다."}
               <p className="border p-3 w-full rounded-md bg-gray-100">{data.companyName}</p>
             </div>
 
-            {/* 유사 업무 경력 (첫 번째 항목만 표시, 나머지는 축약) */}
+            {/* 업무 경력 (첫 번째 항목만 표시, 나머지는 축약) */}
             <div className="p-5 bg-white rounded-md shadow-md flex flex-col">
-              <label className="block text-[20px] font-medium">유사 업무 경력</label>
+              <label className="block text-[20px] font-medium">업무 경력</label>
               {data.experience === "none" ? (
                 <p className="border p-3 w-full rounded-md bg-gray-100">무경력</p>
               ) : (
@@ -144,7 +152,7 @@ ${data.aiResponse || "지원동기가 작성되지 않았습니다."}
           <div className="flex flex-col gap-5 w-1/2">
             {/* 업무 형태 */}
             <div className="p-5 bg-white rounded-md shadow-md">
-              <label className="block text-[20px] font-medium">입사하면 맡게 될 업무 형태</label>
+              <label className="block text-[20px] font-medium">회사에서 요구하는 담당 업무, 요구 자격 요건</label>
               <p className="border p-3 w-full rounded-md bg-gray-100">{data.workType}</p>
             </div>
 
@@ -211,7 +219,17 @@ ${data.aiResponse || "지원동기가 작성되지 않았습니다."}
             <p className="border p-3 w-full rounded-md whitespace-pre-line text-lg">{careerResponse}</p>
           </div>
         )}
-
+            {/* ✅ 면접 질문 받으러 가기 버튼 (AI 응답이 있을 때만 표시) */}
+            {careerResponse.trim() && (
+  <div className="mt-5 flex justify-end">
+    <button
+      onClick={goToInterviewHelpNext} // ✅ 버튼 클릭 시 goToInterviewHelpNext() 실행
+      className="bg-teal-500 text-white px-6 py-3 rounded-full shadow-lg text-2xl hover:bg-white hover:text-teal-500 border-2 border-teal-500"
+    >
+      면접 예상 질문 + 답변 받으러 가기 →
+    </button>
+  </div>
+    )}
         {/* ✅ 복사 성공 메시지 */}
         {showCopiedMessage && (
           <div
@@ -222,6 +240,7 @@ ${data.aiResponse || "지원동기가 작성되지 않았습니다."}
             복사되었습니다!
           </div>
         )}
+        
       </div>
     </div>
   );
