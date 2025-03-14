@@ -22,7 +22,7 @@ app.post("/api/generate", async (req, res) => {
       {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: previousText + prompt }],
-        max_tokens: 1000,
+        max_tokens: 1500,
         temperature: 0.7,
         stop: ["지원동기 종료"],
       },

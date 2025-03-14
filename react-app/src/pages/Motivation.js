@@ -16,6 +16,7 @@ function Motivation() {
 
   const lastExperienceRef = useRef(null); // 추가된 입력 칸을 참조할 ref
 
+
   // ✅ 업무 경력 추가
   const addExperience = () => {
     const newExperience = { id: Date.now(), company: "", joinDate: null, leaveDate: null, details: "" };
@@ -213,9 +214,21 @@ function Motivation() {
     <span className="text-3xl">→</span>
   </button>
 </div>
-
-
       </div>
+      {/* ✅ 광고 (페이지 로드 시 즉시 표시) */}
+      <div
+        className="mt-6 bg-white bg-opacity-50 p-2 rounded-lg shadow-md" // ✅ 페이드인 효과 삭제
+        style={{ width: "1092px", height: "180px" }}
+      >
+        <ins
+          className="adsbygoogle"
+          style={{ display: "inline-block", width: "100%", height: "100%" }}
+          data-ad-client="ca-pub-XXXXXXXXXXXX"
+          data-ad-slot="XXXXXXXXXX"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+</div>
     </div>
   );
 }

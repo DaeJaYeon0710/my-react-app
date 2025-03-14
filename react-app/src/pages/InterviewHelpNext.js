@@ -8,7 +8,19 @@ const InterviewHelpNext = () => {
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false); // ✅ 추가됨
+  const [fadeOut, setFadeOut] = useState(false); // ✅ 추가됨
   const questionsRef = useRef(null);
+
+  // ✅ 카운트다운과 광고 팝업 상태 관리
+  const [showAdPopup, setShowAdPopup] = useState(false);
+  const [countdown, setCountdown] = useState(3); // 카운트다운 초기화
+  const [adCloseEnabled, setAdCloseEnabled] = useState(false); // X 버튼 활성화 여부
+
+    // 광고 팝업을 닫는 함수
+    const handleAdClose = () => {
+      setShowAdPopup(false); // 광고 팝업을 닫는 함수
+    };
 
   // ✅ 날짜 형식 변환 함수 추가 (YYYY년 MM월 DD일)
 const formatDate = (dateStr) => {
@@ -20,9 +32,23 @@ const formatDate = (dateStr) => {
   });
 };
 
-  useEffect(() => {
+useEffect(() => {
     console.log("📌 면접 질문 페이지에서 받은 데이터:", data);
   }, [data]);
+
+    // ✅ 복사 기능 추가
+    const copyToClipboard = (textToCopy) => {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        setShowCopiedMessage(true);
+        setTimeout(() => {
+          setFadeOut(true);
+          setTimeout(() => {
+            setShowCopiedMessage(false);
+            setFadeOut(false);
+          }, 700);
+        }, 2000);
+      });
+    };
 
   const requestInterviewQuestions = async () => {
     if (!data.companyName || !data.workType || !data.aiResponse || !data.careerResponse) {
@@ -32,6 +58,21 @@ const formatDate = (dateStr) => {
     }
 
     setLoading(true);
+    setShowAdPopup(true); // 🚩 광고 팝업 표시
+    setCountdown(3); // 카운트다운 초기화
+    setAdCloseEnabled(false); // X 버튼 비활성화
+
+    // ✅ 카운트다운 시작
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === 1) {
+          clearInterval(interval); // 1초 후 카운트다운 종료
+          setAdCloseEnabled(true); // X 버튼 활성화
+          return 0; // 0으로 변경
+        }
+        return prev - 1; // 1초마다 감소
+      });
+    }, 1000);
 
     try {
       const response = await axios.post("http://localhost:5000/api/generate", {
@@ -180,20 +221,96 @@ const formatDate = (dateStr) => {
           </div>
         </div>
 
+        {/* ✅ 지원동기 섹션 */}
         <div className="mt-3 p-5 border rounded-md bg-white shadow-md">
-          <h3 className="text-xl font-bold mb-2">지원동기</h3>
-          <p className="border p-3 w-full rounded-md bg-gray-100 max-h-[80px] overflow-y-auto">{data.aiResponse || "지원동기가 작성되지 않았습니다."}</p>
-        </div>
-        <div className="mt-3 p-5 border rounded-md bg-white shadow-md">
-          <h3 className="text-xl font-bold mb-2">입사 후 포부</h3>
-          <p className="border p-3 w-full rounded-md bg-gray-100 max-h-[80px] overflow-y-auto">{data.careerResponse || "입사 후 포부가 작성되지 않았습니다."}</p>
+          <h3 className="text-xl font-bold mb-2 flex items-center">
+            지원동기
+            <button
+              onClick={() => copyToClipboard(data.aiResponse || "지원동기가 작성되지 않았습니다.")}
+              className="ml-4 px-3 py-1 bg-gray-200 text-gray-800 rounded shadow hover:bg-gray-300"
+            >
+              복사
+            </button>
+          </h3>
+          <p className="border p-3 w-full rounded-md bg-gray-100 max-h-[80px] overflow-y-auto" style={{ whiteSpace: "pre-line" }}>
+            {data.aiResponse || "지원동기가 작성되지 않았습니다."}
+          </p>
         </div>
 
-        <div className="flex justify-end mt-6">
-          <button onClick={requestInterviewQuestions} className="bg-green-500 text-white px-6 py-3 rounded-full shadow-lg text-2xl transition-all duration-300 hover:bg-white hover:text-green-500 border-2 border-green-500" disabled={loading}>
-            {loading ? "질문 생성 중..." : "질문 + 답변 받기 요청"}
-          </button>
+        {/* ✅ 입사 후 포부 섹션 */}
+        <div className="mt-3 p-5 border rounded-md bg-white shadow-md">
+          <h3 className="text-xl font-bold mb-2 flex items-center">
+            입사 후 포부
+            <button
+              onClick={() => copyToClipboard(data.careerResponse || "입사 후 포부가 작성되지 않았습니다.")}
+              className="ml-4 px-3 py-1 bg-gray-200 text-gray-800 rounded shadow hover:bg-gray-300"
+            >
+              복사
+            </button>
+          </h3>
+          <p className="border p-3 w-full rounded-md bg-gray-100 max-h-[80px] overflow-y-auto" style={{ whiteSpace: "pre-line" }}>
+            {data.careerResponse || "입사 후 포부가 작성되지 않았습니다."}
+          </p>
         </div>
+
+        {/* ✅ 복사 성공 메시지 */}
+        {showCopiedMessage && (
+          <div
+            className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 
+                        border border-green-400 text-green-800 px-4 py-2 rounded shadow-md 
+                        ${fadeOut ? "animate-fadeOut" : "animate-fadeIn"}`}
+          >
+            복사되었습니다!
+          </div>
+        )}
+
+<div className="flex justify-end mt-6">
+  <button
+    onClick={requestInterviewQuestions}
+    className={`bg-green-500 text-white px-6 py-3 rounded-full shadow-lg text-2xl transition-all duration-300 hover:bg-white hover:text-green-500 border-2 border-green-500 ${
+      loading ? "opacity-50 cursor-not-allowed" : ""
+    }`}
+    disabled={loading}
+  >
+    {loading ? "질문 생성 중..." : "질문 + 답변 받기 요청"}
+  </button>
+</div>
+
+        {/* 🚩 팝업 광고 코드 */}
+        {showAdPopup && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+    <div className="bg-white p-4 rounded-lg shadow-lg relative w-[80%] max-w-[320px] flex flex-col items-center justify-center">
+
+      {/* Google 광고 */}
+      <div className="w-full h-[250px] bg-gray-200 flex items-center justify-center mt-4">
+        <ins
+          className="adsbygoogle"
+          style={{ display: "block", width: "100%", height: "100%" }}
+          data-ad-client="ca-pub-XXXXXXXXXXXX"
+          data-ad-slot="XXXXXXXXXX"
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      </div>
+
+      {/* 광고 아래에 문구 배치 */}
+      <p className="text-black text-sm font-medium mt-2 mb-0">
+        작성되는 동안 광고가 표시됩니다
+      </p>
+
+      {/* X 버튼 (검정색 텍스트로 변경) */}
+      <button
+        className={`absolute top-0 right-0 px-3 py-1 rounded-md text-black font-bold transition-all duration-300 ${
+          adCloseEnabled ? "hover:text-black" : "cursor-not-allowed"
+        }`}
+        onClick={handleAdClose}
+        disabled={!adCloseEnabled}
+      >
+        {adCloseEnabled ? "X" : countdown}
+      </button>
+    </div>
+  </div>
+)}
 
         {questions.length > 0 && (
           <div ref={questionsRef} className="mt-5 space-y-5 w-full">
@@ -204,14 +321,41 @@ const formatDate = (dateStr) => {
         style={{ animationDelay: `${index * 0.3}s` }} // ✅ 딜레이 적용
       >
         <h4 className="font-semibold text-2xl mb-2">질문 {index + 1}</h4>
-        <p className="border p-3 rounded-md bg-white">{q.question}</p>
+        <p className="border p-3 rounded-md text-lg bg-white">{q.question}</p>
         <h4 className="font-semibold text-2xl mt-4">답변</h4>
-        <p className="border p-3 rounded-md bg-white">{q.answer}</p>
+        <p className="border p-3 rounded-md text-lg bg-white">{q.answer}</p>
       </div>
     ))}
   </div>
 )}
       </div>
+
+{/* ✅ 복사 성공 메시지 */}
+{showCopiedMessage && (
+  <div
+    className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 
+                border border-green-400 text-green-800 px-4 py-2 rounded shadow-md 
+                ${fadeOut ? "animate-fadeOut" : "animate-fadeIn"}`}
+  >
+    복사되었습니다!
+  </div>
+)}
+
+{/* ✅ 광고 (페이지 로드 시 즉시 표시) 🔹 (광고 추가) */}
+<div
+  className="mt-6 bg-white bg-opacity-50 p-2 rounded-lg shadow-md"
+  style={{ width: "1092px", height: "180px" }}
+>
+  <ins
+    className="adsbygoogle"
+    style={{ display: "inline-block", width: "100%", height: "100%" }}
+    data-ad-client="ca-pub-XXXXXXXXXXXX"
+    data-ad-slot="XXXXXXXXXX"
+    data-ad-format="auto"
+    data-full-width-responsive="true"
+  />
+</div>
+
     </div>
   );
 };

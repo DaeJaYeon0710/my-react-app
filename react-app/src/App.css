@@ -35,3 +35,18 @@
     transform: rotate(360deg);
   }
 }
+
+/* 추가된 스타일: 푸터 고정 */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 화면 크기만큼 최소 높이를 설정 */
+}
+
+main {
+  flex-grow: 1; /* main 영역이 늘어나면서 푸터가 맨 아래에 위치하도록 설정 */
+}
+
+footer {
+  margin-top: auto; /* 푸터를 자동으로 하단으로 밀어내기 */
+}
