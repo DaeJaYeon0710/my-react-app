@@ -34,7 +34,7 @@ const Terms = () => {
   
         {/* ✅ 저작권 표기 */}
         <p className="text-gray-600 mt-8 text-lg">
-          © {new Date().getFullYear()} 이력서AI. All rights reserved.
+          © {new Date().getFullYear()} 이력서 도와핑. All rights reserved.
         </p>
       </div>
     );

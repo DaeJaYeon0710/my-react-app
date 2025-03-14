@@ -51,7 +51,7 @@ const InterviewHelpNext = () => {
   // ✅ 인터뷰 질문 요청
   const requestInterviewQuestions = async () => {
     if (!companyName || !workType || !motivation || !experience) {
-      alert("모든 필드를 입력해 주세요.");
+      alert("빈칸에 모두 입력해주세요.");
       return;
     }
     setLoading(true);

@@ -46,7 +46,7 @@ const PrivacyPolicy = () => {
         </p>
   
         <p className="mt-2 text-lg">
-          © {new Date().getFullYear()} 이력서AI. All rights reserved.
+          © {new Date().getFullYear()} 이력서 도와핑. All rights reserved.
         </p>
       </div>
     );

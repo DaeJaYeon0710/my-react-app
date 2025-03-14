@@ -21,7 +21,7 @@ function Navbar() {
     <nav className="relative bg-white shadow-md">
       <div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
         <Link to="/" className="text-4xl font-medium cursor-pointer absolute left-0 pl-4">
-          <span className="text-gray-800">이력서</span> <span className="text-teal-500">AI</span>
+          <span className="text-gray-800">이력서</span> <span className="text-teal-500">도와핑</span>
         </Link>
 
         <div className="flex justify-center flex-grow">
