@@ -75,7 +75,7 @@ useEffect(() => {
     }, 1000);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/generate", {
+      const response = await axios.post("http://3.39.177.32:5000/api/generate", {
         prompt: `
 📌 **지원 회사:** ${data.companyName}
 📌 **회사에서 요구하는 담당 업무, 요구 자격 요건:** ${data.workType}

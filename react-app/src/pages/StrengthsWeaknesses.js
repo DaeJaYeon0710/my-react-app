@@ -20,8 +20,8 @@ function StrengthsWeaknesses() {
     setLoading(true);
 
     axios
-      .post("http://localhost:5000/api/generate", {
-        prompt: ` 
+    .post("http://3.39.177.32:5000/api/generate", {
+      prompt: ` 
         📌 **성격의 장점**: ${strengths}
         📌 **성격의 단점**: ${weaknesses}
         

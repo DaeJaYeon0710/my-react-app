@@ -56,8 +56,8 @@ const ResumeProcessing = () => {
     }, 1000);
   
     try {
-      const response = await axios.post("http://localhost:5000/api/generate", {
-        prompt: `
+      const response = await axios.post("http://3.39.177.32:5000/api/generate", {
+        prompt: ` 
 📌 **지원 회사:** ${data.companyName}
 📌 **입사하면 맡게 될 업무:** ${data.workType}
 📌 **업무 경력:** 
