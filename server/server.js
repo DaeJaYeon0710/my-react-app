@@ -41,7 +41,9 @@ app.post("/api/generate", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on http://3.39.177.32:${PORT}`);
+});
 
 process.on("SIGINT", () => {
   console.log("❌ 서버 종료 중...");
